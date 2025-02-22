@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Community - Unified Campus System</title>
     <link rel="stylesheet" href="style.css" />
-    <script
-      src="https://kit.fontawesome.com/a076d05399.js"
-      crossorigin="anonymous"
-    ></script>
+    <!-- Use Google Fonts as a fallback -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
   </head>
   <body background="giphy1.gif">
     <div class="community-container">
@@ -52,69 +51,158 @@
 
         <!-- Post Input Box -->
         <section class="post-box">
-          <textarea
-            placeholder="Share something with the community..."
-          ></textarea>
+          <input type="text" id="post-title" placeholder="Enter a title for your post..." />
+          <textarea id="post-content" placeholder="Share something with the community..."></textarea>
           <button class="post-btn">Post</button>
         </section>
 
         <!-- Post Feed -->
-        <section class="post-feed">
-          <div class="post">
-            <h3>Harry Thomas <span class="timestamp">2 hours ago</span></h3>
-            <p>Excited to start the new semester! 🚀</p>
-            <div class="comment-section">
-              <input type="text" placeholder="Write a comment..." />
-              <button class="comment-btn">Comment</button>
-            </div>
-          </div>
-
-          <div class="post">
-            <h3>Libin Babu <span class="timestamp">5 hours ago</span></h3>
-            <p>Does anyone have notes for the Data Structures class?</p>
-            <div class="comment-section">
-              <input type="text" placeholder="Write a comment..." />
-              <button class="comment-btn">Comment</button>
-            </div>
-          </div>
-
-          <div class="post">
-            <h3>
-              Kevin Mathew Jacob <span class="timestamp">5 hours ago</span>
-            </h3>
-            <p>I'll share the notes for the Data Structures class</p>
-            <div class="comment-section">
-              <input type="text" placeholder="Write a comment..." />
-              <button class="comment-btn">Comment</button>
-            </div>
-          </div>
-
-          <div class="post">
-            <h3>Jude Abi <span class="timestamp">5 hours ago</span></h3>
-            <p>When's the exam?</p>
-            <div class="comment-section">
-              <input type="text" placeholder="Write a comment..." />
-              <button class="comment-btn">Comment</button>
-            </div>
-          </div>
+        <section class="post-feed" id="post-feed">
+          <!-- Posts will be dynamically inserted here -->
         </section>
       </main>
     </div>
-    <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        const posts = document.querySelectorAll(".post");
 
-        function checkScroll() {
-          posts.forEach((post) => {
-            const rect = post.getBoundingClientRect();
-            if (rect.top < window.innerHeight - 50) {
-              post.classList.add("show");
-            }
+    <script>
+      // Fetch and display posts (threads)
+      async function fetchPosts() {
+        try {
+          const response = await fetch("http://localhost:5000/api/community/threads");
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          const threads = await response.json();
+          console.log("Fetched threads:", threads); // Debugging
+
+          const postFeed = document.getElementById("post-feed");
+          postFeed.innerHTML = ""; // Clear existing posts
+
+          threads.forEach((thread) => {
+            const postElement = document.createElement("div");
+            postElement.classList.add("post");
+
+            postElement.innerHTML = `
+              <h3>${thread.User.first_name} ${thread.User.last_name} <span class="timestamp">${new Date(thread.created_at).toLocaleString()}</span></h3>
+              <h4>${thread.title}</h4>
+              <p>${thread.content}</p>
+              <div class="comment-section">
+                <input type="text" placeholder="Write a comment..." />
+                <button class="comment-btn" data-thread-id="${thread.thread_id}">Comment</button>
+              </div>
+            `;
+
+            postFeed.appendChild(postElement);
+
+            // Add the .show class after a short delay to trigger the animation
+            setTimeout(() => {
+              postElement.classList.add("show");
+            }, 10);
           });
+        } catch (error) {
+          console.error("Error fetching threads:", error);
+          alert("Failed to fetch posts. Please try again later.");
+        }
+      }
+
+      // Fetch posts when the page loads
+      document.addEventListener("DOMContentLoaded", fetchPosts);
+
+      // Handle post (thread) creation
+      document.querySelector(".post-btn").addEventListener("click", async () => {
+        const title = document.getElementById("post-title").value;
+        const content = document.getElementById("post-content").value;
+
+        if (!title || !content) {
+          alert("Please enter a title and content to post.");
+          return;
         }
 
-        window.addEventListener("scroll", checkScroll);
-        checkScroll(); // Run on page load
+        try {
+          const token = sessionStorage.getItem("token");
+          console.log("Token being sent:", token);
+
+          if (!token) {
+            alert("You are not logged in. Redirecting to login page...");
+            window.location.href = "auth.html";
+            return;
+          }
+
+          const response = await fetch("http://localhost:5000/api/community/threads", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ title, content }),
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || "Failed to create post");
+          }
+
+          alert("Post created successfully!");
+          fetchPosts(); // Refresh the post feed
+        } catch (error) {
+          console.error("Error creating post:", error);
+          alert(error.message || "An error occurred while creating the post");
+        }
+      });
+
+      // Handle comment (message) creation
+      document.getElementById("post-feed").addEventListener("click", async (e) => {
+        if (e.target.classList.contains("comment-btn")) {
+          const thread_id = e.target.getAttribute("data-thread-id");
+          const commentInput = e.target.previousElementSibling;
+          const message_content = commentInput.value;
+
+          if (!message_content) {
+            alert("Please enter a comment.");
+            return;
+          }
+
+          try {
+            const token = sessionStorage.getItem("token");
+            if (!token) {
+              alert("You are not logged in. Redirecting to login page...");
+              window.location.href = "auth.html";
+              return;
+            }
+
+            const response = await fetch("http://localhost:5000/api/community/messages", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ thread_id, message_content }),
+            });
+
+            if (!response.ok) {
+              const data = await response.json();
+              throw new Error(data.error || "Failed to add comment");
+            }
+
+            alert("Comment added successfully!");
+            fetchPosts(); // Refresh the post feed
+          } catch (error) {
+            console.error("Error adding comment:", error);
+            alert(error.message || "An error occurred while adding the comment");
+          }
+        }
+      });
+
+      // Handle logout
+      document.querySelector(".logout").addEventListener("click", () => {
+        // Clear sessionStorage
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("username");
+        sessionStorage.removeItem("fname");
+        sessionStorage.removeItem("lname");
+        sessionStorage.removeItem("id");
+
+        // Redirect to the login page
+        window.location.href = "auth.html";
       });
     </script>
   </body>

@@ -134,6 +134,8 @@
           if (response.ok) {
             alert("Login successful!");
             // Save user information in sessionStorage
+            // Save user information and token in sessionStorage
+            sessionStorage.setItem("token", data.token); // Store the JWT token
             sessionStorage.setItem("username", data.username); // Assuming the backend sends the username
             sessionStorage.setItem("fname", data.first_name); // Assuming the backend sends the user's name
             sessionStorage.setItem("lname", data.last_name); // Assuming the backend sends the user's name

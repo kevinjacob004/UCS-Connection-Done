@@ -3,11 +3,15 @@ const dotenv = require("dotenv");
 const sequelize = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const cors = require("cors");
+const communityRoutes = require("./routes/communityRoutes");
 
 
 
 dotenv.config();
 const app = express();
+
+
+
 
 // Enable CORS with specific options
 const corsOptions = {
@@ -17,14 +21,21 @@ const corsOptions = {
     optionsSuccessStatus: 204, // Respond with 204 No Content for preflight requests
 };
 
+
 app.use(cors(corsOptions));
+
+// Enable CORS for all routes
 
 // Handle preflight requests
 app.options("*", cors(corsOptions)); // Allow preflight requests for all routes
 
 
 app.use(express.json()); // Middleware for parsing JSON
+
+
 app.use("/api/auth", authRoutes); // Mount auth routes
+app.use("/api/community", communityRoutes); // Community routes
+
 
 //Start server after DB connection
 sequelize.authenticate()

@@ -1,16 +1,22 @@
 const jwt = require("jsonwebtoken");
 
-const SECRET_KEY = process.env.JWT_SECRET || "supersecretkey";
 
-const authenticateToken = (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) return res.status(401).json({ error: "Unauthorized" });
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1]; // Extract token from "Bearer <token>"
 
-  jwt.verify(token, SECRET_KEY, (err, user) => {
-    if (err) return res.status(403).json({ error: "Invalid token" });
-    req.user = user;
+  if (!token) {
+    return res.status(401).json({ message: "Access token is missing" });
+  }
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      console.error("Token verification error:", err);
+      return res.status(403).json({ message: "Invalid or expired token" });
+    }
+    req.user = user; // Attach user to the request object
     next();
   });
-};
+}
 
 module.exports = authenticateToken;

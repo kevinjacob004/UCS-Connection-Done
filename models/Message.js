@@ -29,4 +29,10 @@ const Message = sequelize.define("Message", {
   },
 });
 
+// Define associations
+Message.associate = (models) => {
+  Message.belongsTo(models.User, { foreignKey: "user_id" });
+  Message.belongsTo(models.Thread, { foreignKey: "thread_id" });
+};
+
 module.exports = Message;

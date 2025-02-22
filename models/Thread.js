@@ -29,4 +29,10 @@ const Thread = sequelize.define("Thread", {
   },
 });
 
+// Define associations
+Thread.associate = (models) => {
+  Thread.belongsTo(models.User, { foreignKey: "user_id" });
+  Thread.hasMany(models.Message, { foreignKey: "thread_id" });
+};
+
 module.exports = Thread;

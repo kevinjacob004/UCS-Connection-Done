@@ -816,13 +816,12 @@ footer .social-icons a:hover {
 /* Main Content */
 .community-content {
     flex-grow: 1;
-    /*padding: 20px;*/
     margin-left: 250px; /* Push the main content to the right */
     padding-left: 20px; /* Space from the sidebar */
-}
-
-/* Post Box */
-.post-box {
+  }
+  
+  /* Post Box */
+  .post-box {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
@@ -830,13 +829,13 @@ footer .social-icons a:hover {
     margin-bottom: 20px;
     transform: scale(0.95);
     transition: 0.3s ease;
-}
-
-.post-box:hover {
+  }
+  
+  .post-box:hover {
     transform: scale(1);
-}
-
-.post-box textarea {
+  }
+  
+  .post-box textarea {
     width: 100%;
     height: 80px;
     padding: 10px;
@@ -844,9 +843,9 @@ footer .social-icons a:hover {
     border-radius: 5px;
     resize: none;
     font-size: 16px;
-}
-
-.post-btn {
+  }
+  
+  .post-btn {
     margin-top: 10px;
     padding: 10px;
     width: 100%;
@@ -857,22 +856,22 @@ footer .social-icons a:hover {
     cursor: pointer;
     font-size: 16px;
     transition: 0.3s ease;
-}
-
-.post-btn:hover {
+  }
+  
+  .post-btn:hover {
     background-color: #2980b9;
     transform: scale(1.05);
-}
-
-/* Post Feed */
-.post-feed {
+  }
+  
+  /* Post Feed */
+  .post-feed {
     display: flex;
     flex-direction: column;
     gap: 15px;
-}
-
-/* Post Fade-in Effect */
-.post {
+  }
+  
+  /* Post Fade-in Effect */
+  .post {
     background-color: white;
     padding: 15px;
     border-radius: 10px;
@@ -880,50 +879,50 @@ footer .social-icons a:hover {
     opacity: 0;
     transform: translateY(30px);
     transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
-}
-
-.post.show {
+  }
+  
+  .post.show {
     opacity: 1;
     transform: translateY(0);
-}
-
-.post h3 {
+  }
+  
+  .post h3 {
     display: flex;
     justify-content: space-between;
     font-size: 18px;
-}
-
-.timestamp {
+  }
+  
+  .timestamp {
     font-size: 14px;
     color: gray;
-}
-
-.post p {
+  }
+  
+  .post p {
     font-size: 16px;
     margin-top: 5px;
-}
-
-/* Comment Section */
-.comment-section {
+  }
+  
+  /* Comment Section */
+  .comment-section {
     margin-top: 10px;
     display: flex;
     gap: 10px;
-}
-
-.comment-section input {
+  }
+  
+  .comment-section input {
     flex-grow: 1;
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
     transition: 0.3s ease;
-}
-
-.comment-section input:focus {
+  }
+  
+  .comment-section input:focus {
     border-color: #3498db;
     box-shadow: 0px 0px 8px rgba(52, 152, 219, 0.5);
-}
-
-.comment-btn {
+  }
+  
+  .comment-btn {
     background-color: #27ae60;
     color: white;
     border: none;
@@ -931,12 +930,32 @@ footer .social-icons a:hover {
     border-radius: 5px;
     cursor: pointer;
     transition: 0.3s ease;
-}
-
-.comment-btn:hover {
+  }
+  
+  .comment-btn:hover {
     background-color: #535353;
     transform: scale(1.05);
-}
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .community-content {
+      margin-left: 0; /* Remove sidebar margin on small screens */
+      padding-left: 10px; /* Reduce padding */
+    }
+  
+    .post-box {
+      padding: 15px; /* Reduce padding */
+    }
+  
+    .post h3 {
+      font-size: 16px; /* Reduce font size */
+    }
+  
+    .post p {
+      font-size: 14px; /* Reduce font size */
+    }
+  }
 
 /* Fade-in Animation */
 @keyframes fadeIn {
