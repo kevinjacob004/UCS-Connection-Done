@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Community - Unified Campus System</title>
+    <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body background="giphy1.gif">
+    <div class="community-container">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <h2>Campus System</h2>
+        <ul>
+          <li>
+            <a href="homepage.html"><i class="fas fa-home"></i> Home</a>
+          </li>
+          <li>
+            <a href="dash.html"><i class="fas fa-home"></i> Dashboard</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-utensils"></i> Canteen</a>
+          </li>
+          <li>
+            <a href="#"><i class="fas fa-user-md"></i> Counseling</a>
+          </li>
+          <li>
+            <a href="community.html" class="active"
+              ><i class="fas fa-users"></i> Community</a
+            >
+          </li>
+          <li>
+            <a href="index.html" class="logout"
+              ><i class="fas fa-sign-out-alt"></i> Logout</a
+            >
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="community-content">
+        <header>
+          <h1>Community Space</h1>
+          <button class="profile-btn">
+            <i class="fas fa-user-circle"></i> Profile
+          </button>
+        </header>
+
+        <!-- Post Input Box -->
+        <section class="post-box">
+          <textarea
+            placeholder="Share something with the community..."
+          ></textarea>
+          <button class="post-btn">Post</button>
+        </section>
+
+        <!-- Post Feed -->
+        <section class="post-feed">
+          <div class="post">
+            <h3>Harry Thomas <span class="timestamp">2 hours ago</span></h3>
+            <p>Excited to start the new semester! 🚀</p>
+            <div class="comment-section">
+              <input type="text" placeholder="Write a comment..." />
+              <button class="comment-btn">Comment</button>
+            </div>
+          </div>
+
+          <div class="post">
+            <h3>Libin Babu <span class="timestamp">5 hours ago</span></h3>
+            <p>Does anyone have notes for the Data Structures class?</p>
+            <div class="comment-section">
+              <input type="text" placeholder="Write a comment..." />
+              <button class="comment-btn">Comment</button>
+            </div>
+          </div>
+
+          <div class="post">
+            <h3>
+              Kevin Mathew Jacob <span class="timestamp">5 hours ago</span>
+            </h3>
+            <p>I'll share the notes for the Data Structures class</p>
+            <div class="comment-section">
+              <input type="text" placeholder="Write a comment..." />
+              <button class="comment-btn">Comment</button>
+            </div>
+          </div>
+
+          <div class="post">
+            <h3>Jude Abi <span class="timestamp">5 hours ago</span></h3>
+            <p>When's the exam?</p>
+            <div class="comment-section">
+              <input type="text" placeholder="Write a comment..." />
+              <button class="comment-btn">Comment</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const posts = document.querySelectorAll(".post");
+
+        function checkScroll() {
+          posts.forEach((post) => {
+            const rect = post.getBoundingClientRect();
+            if (rect.top < window.innerHeight - 50) {
+              post.classList.add("show");
+            }
+          });
+        }
+
+        window.addEventListener("scroll", checkScroll);
+        checkScroll(); // Run on page load
+      });
+    </script>
+  </body>
+</html>
