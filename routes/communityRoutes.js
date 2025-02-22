@@ -114,4 +114,52 @@ router.get("/threads/:thread_id/messages", async (req, res) => {
   }
 });
 
+
+
+// routes/communityRoutes.js
+router.get("/threads/:thread_id/comments", async (req, res) => {
+    try {
+      const { thread_id } = req.params;
+  
+      const comments = await Message.findAll({
+        where: { thread_id },
+        include: [{ model: User, attributes: ["first_name", "last_name"] }],
+        order: [["created_at", "ASC"]],
+      });
+  
+      res.status(200).json(comments);
+    } catch (error) {
+      console.error("Error fetching comments:", error);
+      res.status(500).json({ error: "An error occurred while fetching comments" });
+    }
+  });
+
+
+//   // routes/communityRoutes.js
+// router.get("/threads/:thread_id", async (req, res) => {
+//     try {
+//       const { thread_id } = req.params;
+  
+//       const thread = await Thread.findOne({
+//         where: { thread_id },
+//         include: [
+//           { model: User, attributes: ["first_name", "last_name"] }, // Include the user who created the thread
+//           { 
+//             model: Message, // Include all messages (comments) for the thread
+//             include: [{ model: User, attributes: ["first_name", "last_name"] }], // Include the user who created each comment
+//           },
+//         ],
+//       });
+  
+//       if (!thread) {
+//         return res.status(404).json({ error: "Thread not found" });
+//       }
+  
+//       res.status(200).json(thread);
+//     } catch (error) {
+//       console.error("Error fetching thread:", error);
+//       res.status(500).json({ error: "An error occurred while fetching the thread" });
+//     }
+//   });
+
 module.exports = router;
