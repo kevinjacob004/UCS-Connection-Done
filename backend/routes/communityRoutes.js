@@ -162,4 +162,63 @@ router.get("/threads/:thread_id/comments", async (req, res) => {
 //     }
 //   });
 
+// router.delete("/api/community/threads/:thread_id", async (req, res) => {
+//   const { thread_id } = req.params;
+//   const token = req.headers.authorization?.split(" ")[1];
+
+//   try {
+//     // Verify the user is authenticated
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const userId = decoded.userId;
+
+//     // Find the thread
+//     const thread = await Thread.findOne({ where: { thread_id } });
+//     if (!thread) {
+//       return res.status(404).json({ error: "Thread not found" });
+//     }
+
+//     // Check if the user is the owner of the thread
+//     if (thread.user_id !== userId) {
+//       return res.status(403).json({ error: "You are not authorized to delete this thread" });
+//     }
+
+//     // Delete the thread
+//     await thread.destroy();
+//     res.json({ message: "Thread deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting thread:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
+
+// router.delete("/api/community/messages/:message_id", async (req, res) => {
+//   const { message_id } = req.params;
+//   const token = req.headers.authorization?.split(" ")[1];
+
+//   try {
+//     // Verify the user is authenticated
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+//     const userId = decoded.userId;
+
+//     // Find the message
+//     const message = await Message.findOne({ where: { message_id } });
+//     if (!message) {
+//       return res.status(404).json({ error: "Message not found" });
+//     }
+
+//     // Check if the user is the owner of the message
+//     if (message.user_id !== userId) {
+//       return res.status(403).json({ error: "You are not authorized to delete this message" });
+//     }
+
+//     // Delete the message
+//     await message.destroy();
+//     res.json({ message: "Message deleted successfully" });
+//   } catch (error) {
+//     console.error("Error deleting message:", error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// });
+
 module.exports = router;
