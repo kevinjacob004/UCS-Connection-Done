@@ -221,4 +221,54 @@ router.get("/threads/:thread_id/comments", async (req, res) => {
 //   }
 // });
 
+
+
+router.delete("/threads/:thread_id", authenticateToken, async (req, res) => {
+  try {
+      const { thread_id } = req.params;
+      const user_id = req.user.id;
+
+      const thread = await Thread.findOne({ where: { thread_id } });
+      if (!thread) return res.status(404).json({ error: "Thread not found" });
+
+      if (thread.user_id !== user_id) return res.status(403).json({ error: "Unauthorized" });
+
+      // 🔹 Delete all associated comments first
+      await Message.destroy({ where: { thread_id } });
+
+      // 🔹 Delete the thread
+      await thread.destroy();
+
+      res.json({ message: "Thread and all comments deleted successfully" });
+
+  } catch (error) {
+      console.error("Error deleting thread:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+
+router.delete("/messages/:message_id", authenticateToken, async (req, res) => {
+  try {
+      const { message_id } = req.params;
+      const user_id = req.user.id;
+
+      const message = await Message.findOne({ where: { message_id } });
+      if (!message) return res.status(404).json({ error: "Message not found" });
+
+      if (message.user_id !== user_id) return res.status(403).json({ error: "Unauthorized" });
+
+      // 🔹 Delete the message
+      await message.destroy();
+
+      res.json({ message: "Comment deleted successfully" });
+
+  } catch (error) {
+      console.error("Error deleting message:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
 module.exports = router;
