@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { Counselling, User } = require("../models");
 const authenticateToken = require("../middleware/authenticateToken"); 
+const { CounsellingReport } = require("../models");
+
+
 
 
 // 🔹 Fetch available counsellors
@@ -237,6 +240,47 @@ router.get("/student-booked-slots", authenticateToken, async (req, res) => {
 
 
 
+// router.put("/add-feedback/:session_id", async (req, res) => {
+//     try {
+//         const { session_id } = req.params;
+//         const { feedback } = req.body;
+
+//         if (!feedback.trim()) return res.status(400).json({ error: "Feedback cannot be empty" });
+
+//         const slot = await Counselling.findByPk(session_id);
+//         if (!slot) return res.status(404).json({ error: "Slot not found" });
+
+//         slot.feedback = feedback;
+//         await slot.save();
+
+//         res.json({ message: "Feedback added successfully!", slot });
+//     } catch (error) {
+//         console.error("Error adding feedback:", error);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// });
+
+router.put("/add-remark/:session_id", async (req, res) => {
+    try {
+        const { session_id } = req.params;
+        const { remark } = req.body;
+
+        if (!remark.trim()) return res.status(400).json({ error: "Remark cannot be empty" });
+
+        const slot = await Counselling.findByPk(session_id);
+        if (!slot) return res.status(404).json({ error: "Slot not found" });
+
+        slot.remark = remark; // ✅ Store remark
+        await slot.save();
+
+        res.json({ message: "Remark added successfully!", slot });
+    } catch (error) {
+        console.error("Error adding remark:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+
 router.put("/add-feedback/:session_id", async (req, res) => {
     try {
         const { session_id } = req.params;
@@ -247,7 +291,12 @@ router.put("/add-feedback/:session_id", async (req, res) => {
         const slot = await Counselling.findByPk(session_id);
         if (!slot) return res.status(404).json({ error: "Slot not found" });
 
-        slot.feedback = feedback;
+        // ✅ Ensure feedback can be added **only if a remark exists**
+        if (!slot.remark) {
+            return res.status(400).json({ error: "Feedback can only be added after a remark" });
+        }
+
+        slot.feedback = feedback; // ✅ Store feedback
         await slot.save();
 
         res.json({ message: "Feedback added successfully!", slot });
@@ -257,6 +306,23 @@ router.put("/add-feedback/:session_id", async (req, res) => {
     }
 });
 
+
+// router.get("/available-slots/:counsellorId", async (req, res) => {
+//     try {
+//         const { counsellorId } = req.params;
+
+//         const slots = await CounsellorAvailability.findAll({
+//             where: { counsellor_id: counsellorId },
+//             attributes: ["available_time"], // Fetch only time slots
+//             order: [["available_time", "ASC"]], // Sort slots in ascending order
+//         });
+
+//         res.json(slots);
+//     } catch (error) {
+//         console.error("Error fetching available slots:", error);
+//         res.status(500).json({ error: "Internal Server Error" });
+//     }
+// });
 
 
 
