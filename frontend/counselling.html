@@ -234,32 +234,76 @@
 
 
         function checkUserRole() {
+            const role = sessionStorage.getItem("role");
 
-            if (role === 'student') {
-                console.log(role);
-                document.getElementById('studentView').style.display = 'block';
-                fetchBookedSlots(); // Fetch slots booked by the student
+            if (role === "student") {
+                document.getElementById("studentView").style.display = "block";
+                fetchStudentBookedSlots(); // Fetch student bookings
                 loadAvailableCounsellors();
                 loadAvailableSlots();
-            } else if (role === 'counsellor') {
-                console.log(role);
-                document.getElementById('counsellorView').style.display = 'block';
-                fetchBookedSlots(); // Fetch slots booked with this counsellor
-            } else if (role === 'admin') {
-                console.log(role);
-                document.getElementById('adminView').style.display = 'block';
-                fetchAllBookedSlots(); // Fetch all booked slots for the admin
+            } else if (role === "counselor") {
+                document.getElementById("counsellorView").style.display = "block";
+                fetchBookedSlots();
+            } else if (role === "admin") {
+                document.getElementById("adminView").style.display = "block";
+                fetchAllBookedSlots(); // Fetch all booked slots for admin
             }
         }
+        // async function fetchAllBookedSlots() {
+        //     try {
+        //         const role=sessionStorage.getItem("role");
+        //         const token = sessionStorage.getItem("token");
+        //         const response = await fetch("http://localhost:5000/api/counselling/all-booked-slots", {
+        //             method: "GET",
+        //             headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json","Role": role },
+        //         });
 
+        //         if (!response.ok) throw new Error("Failed to fetch booked slots");
+
+        //         const slots = await response.json();
+        //         const slotsContainer = document.getElementById("adminBookedSlots");
+        //         slotsContainer.innerHTML = "";
+
+        //         slots.forEach(slot => {
+        //             const formattedDateTime = slot.session_date_time.replace("T", " ").replace("Z", "");
+
+        //             const li = document.createElement("li");
+        //             li.style.padding = "10px";
+        //             li.style.marginBottom = "10px";
+        //             li.style.borderRadius = "6px";
+        //             li.style.backgroundColor = "#f4f4f9";
+        //             li.style.boxShadow = "0 2px 5px rgba(0, 0, 0, 0.1)";
+
+        //             li.innerHTML = `
+        //         <div><strong>👤 Student:</strong> ${slot.Student.first_name} ${slot.Student.last_name}</div>
+        //         <div><strong>👨‍⚕️ Counsellor:</strong> ${slot.Counsellor.first_name} ${slot.Counsellor.last_name}</div>
+        //         <div><strong>⏰ Time:</strong> ${formattedDateTime}</div>
+        //         <div><strong>📝 Remark:</strong> <span style="color: ${slot.remark ? 'green' : 'gray'};">
+        //             ${slot.remark || 'No remark yet'}
+        //         </span></div>
+        //         <div><strong>💬 Feedback:</strong> <span style="color: ${slot.feedback ? 'green' : 'gray'};">
+        //             ${slot.feedback || 'No feedback yet'}
+        //         </span></div>
+        //     `;
+
+        //             slotsContainer.appendChild(li);
+        //         });
+
+        //     } catch (error) {
+        //         console.error("Error fetching all booked slots:", error);
+        //     }
+        // }
         async function fetchAllBookedSlots() {
             try {
-                const role = sessionStorage.getItem('role');
-                console.log(role);
+                const role = sessionStorage.getItem("role");
                 const token = sessionStorage.getItem("token");
                 const response = await fetch("http://localhost:5000/api/counselling/all-booked-slots", {
                     method: "GET",
-                    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                        "Role": role
+                    },
                 });
 
                 if (!response.ok) throw new Error("Failed to fetch booked slots");
@@ -267,6 +311,11 @@
                 const slots = await response.json();
                 const slotsContainer = document.getElementById("adminBookedSlots");
                 slotsContainer.innerHTML = "";
+
+                if (slots.length === 0) {
+                    slotsContainer.innerHTML = "<li>No booked slots found.</li>";
+                    return;
+                }
 
                 slots.forEach(slot => {
                     const formattedDateTime = slot.session_date_time.replace("T", " ").replace("Z", "");
@@ -282,24 +331,24 @@
                 <div><strong>👤 Student:</strong> ${slot.Student.first_name} ${slot.Student.last_name}</div>
                 <div><strong>👨‍⚕️ Counsellor:</strong> ${slot.Counsellor.first_name} ${slot.Counsellor.last_name}</div>
                 <div><strong>⏰ Time:</strong> ${formattedDateTime}</div>
-                <div><strong>📝 Remark:</strong> <span style="color: ${slot.remark ? 'green' : 'gray'};">
-                    ${slot.remark || 'No remark yet'}
-                </span></div>
-                <div><strong>💬 Feedback:</strong> <span style="color: ${slot.feedback ? 'green' : 'gray'};">
-                    ${slot.feedback || 'No feedback yet'}
-                </span></div>
+                <div><strong>📝 Remark:</strong> <span style="color: ${slot.remark ? 'green' : 'gray'};">${slot.remark || 'No remark yet'}</span></div>
+                <div><strong>💬 Feedback:</strong> <span style="color: ${slot.feedback ? 'green' : 'gray'};">${slot.feedback || 'No feedback yet'}</span></div>
+                                   <button onclick="redirectToReport(${slot.session_id})"
+                        style="background-color: #007bff; color: white; padding: 6px 10px; border: none; border-radius: 5px; margin-top: 5px; cursor: pointer;">
+                        Report
+                    </button>
             `;
 
                     slotsContainer.appendChild(li);
                 });
-
             } catch (error) {
-                console.error("Error fetching all booked slots:", error);
+                console.error("Error fetching admin booked slots:", error);
             }
         }
 
-
-
+        function viewReport(reportId) {
+            window.location.href = `report.html?report_id=${reportId}`;
+        }
 
 
 
@@ -1348,20 +1397,20 @@
 
 
 
-        // 🔹 Modify `checkUserRole` function to also fetch student bookings
-        function checkUserRole() {
-            const role = sessionStorage.getItem("role");
+        // // 🔹 Modify `checkUserRole` function to also fetch student bookings
+        // function checkUserRole() {
+        //     const role = sessionStorage.getItem("role");
 
-            if (role === "student") {
-                document.getElementById("studentView").style.display = "block";
-                fetchStudentBookedSlots(); // ✅ Fetch student bookings
-                loadAvailableCounsellors();
-                loadAvailableSlots();
-            } else if (role === "counselor") {
-                document.getElementById("counsellorView").style.display = "block";
-                fetchBookedSlots();
-            }
-        }
+        //     if (role === "student") {
+        //         document.getElementById("studentView").style.display = "block";
+        //         fetchStudentBookedSlots(); // ✅ Fetch student bookings
+        //         loadAvailableCounsellors();
+        //         loadAvailableSlots();
+        //     } else if (role === "counselor") {
+        //         document.getElementById("counsellorView").style.display = "block";
+        //         fetchBookedSlots();
+        //     }
+        // }
 
 
         // Handle logout

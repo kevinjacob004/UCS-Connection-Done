@@ -373,14 +373,17 @@ router.delete("/cancel-slot/:sessionId", authenticateToken, async (req, res) => 
 
 router.get("/all-booked-slots", authenticateToken, async (req, res) => {
     try {
-        if (req.user.role !== "admin") {
+        const role = req.headers.role;    
+        console.log(role);
+        if (role !== "admin") {
             return res.status(403).json({ error: "Unauthorized access" });
         }
 
         const slots = await Counselling.findAll({
             include: [
                 { model: User, as: "Student", attributes: ["id", "first_name", "last_name"] },
-                { model: User, as: "Counsellor", attributes: ["id", "first_name", "last_name"] }
+                { model: User, as: "Counsellor", attributes: ["id", "first_name", "last_name"] },
+                
             ],
             order: [["session_date_time", "ASC"]],
         });

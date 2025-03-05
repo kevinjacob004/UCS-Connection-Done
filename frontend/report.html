@@ -206,8 +206,10 @@
             color: white;
             padding: 20px;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            position: fixed; /* Fix the sidebar */
-            height: 100vh; /* Full height */
+            position: fixed;
+            /* Fix the sidebar */
+            height: 100vh;
+            /* Full height */
         }
 
         .sidebar h2 {
@@ -237,7 +239,8 @@
         }
 
         .main-content {
-            margin-left: 250px; /* Offset by sidebar width */
+            margin-left: 250px;
+            /* Offset by sidebar width */
             flex: 1;
             padding: 20px;
             background-color: #ffffff;
@@ -367,7 +370,8 @@
             <p><strong>Student Age:</strong> <span id="viewStudentAge"></span></p>
             <p><strong>Problem Details:</strong> <span id="viewProblemDetails"></span></p>
             <p><strong>Solution Provided:</strong> <span id="viewSolution"></span></p>
-            <button class="back-button" onclick="window.location.href = 'counselling.html';">Back to Counselling</button>
+            <button class="back-button" onclick="window.location.href = 'counselling.html';">Back to
+                Counselling</button>
         </div>
     </div>
 
@@ -383,7 +387,8 @@
                 window.location.href = "auth.html";
                 return;
             }
-
+            const role = sessionStorage.getItem("role");
+            console.log(role);
             // Fetch report details for the session_id
             try {
                 const response = await fetch(`http://localhost:5000/api/report/${sessionId}`, {
@@ -399,7 +404,13 @@
                     displayReportDetails(report);
                 } else if (response.status === 404) {
                     // If no report exists, display the "write" form
-                    displayWriteReportForm();
+                    if (role === 'counselor') {
+                        displayWriteReportForm();
+                    }
+                    else if (role === 'admin') {
+                        // Should display no report generated
+                        displayNoReportGenerated(); // Show message for admin
+                    }
                 } else {
                     // Handle other errors
                     const errorText = await response.text(); // Log the response text for debugging
@@ -411,6 +422,17 @@
                 alert("❌ Error fetching report. Check console for details.");
             }
         });
+
+        function displayNoReportGenerated() {
+            const viewReportDetails = document.getElementById("viewReportDetails");
+            viewReportDetails.style.display = "block";
+            viewReportDetails.innerHTML = `
+        <h2>Report Details</h2>
+        <p><strong>No report generated for this session.</strong></p>
+        <button class="back-button" onclick="window.location.href = 'counselling.html';">Back to Counselling</button>
+    `;
+        }
+
 
         function displayWriteReportForm() {
             document.getElementById("writeReportForm").style.display = "block";
