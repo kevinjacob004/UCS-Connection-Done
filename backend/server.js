@@ -12,7 +12,7 @@ dotenv.config();
 const app = express();
 
 
-console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
+// console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
 
 
 
@@ -54,6 +54,3 @@ sequelize.authenticate()
 app.get('/',(req,res)=>{
     res.send("Running");
 });
-// app.listen(3000,()=>{
-//     console.log("Succcess\n");
-// });

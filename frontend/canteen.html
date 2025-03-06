@@ -1,12 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Canteen</title>
-    <link rel="shortcut icon" href="1.png" type="image/x-icon">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canteen - Unified Campus System</title>
+    <style>
+        body {
+            font-family: "Roboto", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Main Content */
+        .canteen-content {
+            margin-left: 260px;
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2b2b2b;
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            /* Fix the sidebar */
+            height: 100vh;
+            /* Full height */
+        }
+
+        .sidebar h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            margin: 15px 0;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+        }
+
+        .profile-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            border: none;
+        }
+
+        /* Menu Section */
+        .menu {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .menu-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item:hover {
+            transform: scale(1.05);
+        }
+
+        .menu-item img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .menu-item button {
+            background-color: #27ae60;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s ease;
+        }
+
+        .menu-item button:hover {
+            background-color: #219150;
+        }
+
+        /* Cart Section */
+        .cart {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .cart ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .cart ul li {
+            padding: 5px 0;
+        }
+
+        .cart button {
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .cart button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-    
+    <div>
+    <!-- class name changed from sidebar to side-bar -->
+    <aside class="sidebar">
+        <h2>Campus System</h2>
+        <ul>
+            <li>
+                <a href="homepage.html"><i class="fas fa-home"></i> Home</a>
+            </li>
+            <li>
+                <a href="dash.html"><i class="fas fa-home"></i> Dashboard</a>
+            </li>
+            <li>
+                <a href="canteen.html"><i class="fas fa-utensils"></i> Canteen</a>
+            </li>
+            <li>
+                <a href="counselling.html"><i class="fas fa-user-md"></i> Counseling</a>
+            </li>
+            <li>
+                <a href="community.html"><i class="fas fa-users"></i> Community</a>
+            </li>
+            <li>
+                <a href="index.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </li>
+        </ul>
+        </div>
+
+        <div class="canteen-content">
+            <header>
+                <h1>Canteen Menu</h1>
+                <button class="profile-btn">Profile</button>
+            </header>
+
+            <section class="menu">
+                <div class="menu-item">
+                    <img src="burger.jpg" alt="Burger" />
+                    <h3>Burger</h3>
+                    <p>₹150</p>
+                    <button onclick="addToCart('Burger', 150)">Add to Cart</button>
+                </div>
+                <div class="menu-item">
+                    <img src="pizza.jpg" alt="Pizza" />
+                    <h3>Pizza</h3>
+                    <p>₹500</p>
+                    <button onclick="addToCart('Pizza', 500)">Add to Cart</button>
+                </div>
+                <div class="menu-item">
+                    <img src="pasta.jpg" alt="Pasta" />
+                    <h3>Pasta</h3>
+                    <p>₹200</p>
+                    <button onclick="addToCart('Pasta', 200)">Add to Cart</button>
+                </div>
+            </section>
+
+            <section class="cart">
+                <h2>Order Cart</h2>
+                <ul id="cart-items"></ul>
+                <p>Total: ₹<span id="total-price">0.00</span></p>
+                <button onclick="checkout()">Checkout</button>
+            </section>
+        </div>
+
+        <script>
+            let cart = [];
+
+            function addToCart(item, price) {
+                cart.push({ item, price });
+                updateCart();
+            }
+
+            function updateCart() {
+                let cartList = document.getElementById("cart-items");
+                let totalPrice = 0;
+                cartList.innerHTML = "";
+                cart.forEach((food) => {
+                    let li = document.createElement("li");
+                    li.textContent = `${food.item} - ₹${food.price.toFixed(2)}`;
+                    cartList.appendChild(li);
+                    totalPrice += food.price;
+                });
+                document.getElementById("total-price").textContent =
+                    totalPrice.toFixed(2);
+            }
+
+            function checkout() {
+                alert("Order placed successfully!");
+                cart = [];
+                updateCart();
+            }
+        </script>
 </body>
+
 </html>
