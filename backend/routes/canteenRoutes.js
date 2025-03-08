@@ -440,9 +440,9 @@ router.get('/orders', authenticateToken, async (req, res) => {
 
     try {
         let orders;
-        console.log(role);
+        // console.log(role);
         if (role === 'canteen_staff') {
-            console.log(role);
+            //console.log(role);
             // Fetch all orders with status 'placed' for canteen staff
             orders = await Order.findAll({
                 where: { order_status: 'placed' },
@@ -488,7 +488,7 @@ router.get('/orders', authenticateToken, async (req, res) => {
 router.put('/orders/:orderId/cancel', authenticateToken, async (req, res) => {
     const { orderId } = req.params; // Get the order ID from the URL
     const user_id = req.user.id; // Get the user ID from the token
-    console.log(user_id);
+    // console.log(user_id);
     try {
         // Find the order
         const order = await Order.findOne({
@@ -513,7 +513,7 @@ router.put('/orders/:orderId/cancel', authenticateToken, async (req, res) => {
 router.put('/orders/:orderId/ready', authenticateToken, async (req, res) => {
     const { orderId } = req.params;
     const role = req.headers.role;
-    console.log(role);
+    // console.log(role);
     try {
         // Only canteen_staff can mark orders as ready
         if (role !== 'canteen_staff') {
@@ -535,6 +535,167 @@ router.put('/orders/:orderId/ready', authenticateToken, async (req, res) => {
         res.status(200).json({ message: 'Order marked as ready', order });
     } catch (error) {
         console.error('Error marking order as ready:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+router.get('/orders/ready', authenticateToken, async (req, res) => {
+    const user_id = req.user.id; // Get the user ID from the token
+    const role = req.headers.role; // Get the user role from the token
+
+    try {
+        let readyOrders;
+
+        if (role === 'canteen_staff') {
+            // Fetch all orders with status 'ready' for canteen staff
+            readyOrders = await Order.findAll({
+                where: { order_status: 'ready' },
+                include: [
+                    {
+                        model: OrderItems,
+                        include: [MenuItem]
+                    },
+                    {
+                        model: User, // Include user details
+                        attributes: ['id', 'first_name', 'email'] // Include only necessary user details
+                    }
+                ]
+            });
+        } else {
+            // Fetch only the user's orders with status 'ready'
+            readyOrders = await Order.findAll({
+                where: { user_id, order_status: 'ready' },
+                include: [
+                    {
+                        model: OrderItems,
+                        include: [MenuItem]
+                    },
+                    {
+                        model: User, // Include user details
+                        attributes: ['id', 'first_name', 'email'] // Include only necessary user details
+                    }
+                ]
+            });
+        }
+
+        if (!readyOrders || readyOrders.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        res.status(200).json(readyOrders);
+    } catch (error) {
+        console.error('Error fetching ready orders:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+router.put('/orders/:orderId/delivered', authenticateToken, async (req, res) => {
+    const { orderId } = req.params; // Get the order ID from the URL
+    const role = req.headers.role; // Get the user role from the token
+
+    try {
+        // Only canteen_staff can mark orders as delivered
+        if (role !== 'canteen_staff') {
+            return res.status(403).json({ error: 'You do not have permission to perform this action' });
+        }
+
+        // Find the order
+        const order = await Order.findOne({
+            where: { order_id: orderId }
+        });
+
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        // Update the order status to 'delivered'
+        order.order_status = 'delivered';
+        await order.save();
+
+        res.status(200).json({ message: 'Order marked as delivered', order });
+    } catch (error) {
+        console.error('Error marking order as delivered:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.get('/orders/delivered', authenticateToken, async (req, res) => {
+    const user_id = req.user.id; // Get the user ID from the token
+    const role = req.headers.role; // Get the user role from the token
+
+    try {
+        let deliveredOrders;
+
+        if (role === 'canteen_staff') {
+            // Fetch all orders with status 'delivered' for canteen staff
+            deliveredOrders = await Order.findAll({
+                where: { order_status: 'delivered' },
+                include: [
+                    {
+                        model: OrderItems,
+                        include: [MenuItem]
+                    },
+                    {
+                        model: User, // Include user details
+                        attributes: ['id', 'first_name', 'email'] // Include only necessary user details
+                    }
+                ]
+            });
+        } else {
+            // Fetch only the user's orders with status 'delivered'
+            deliveredOrders = await Order.findAll({
+                where: { user_id, order_status: 'delivered' },
+                include: [
+                    {
+                        model: OrderItems,
+                        include: [MenuItem]
+                    },
+                    {
+                        model: User, // Include user details
+                        attributes: ['id', 'first_name', 'email'] // Include only necessary user details
+                    }
+                ]
+            });
+        }
+
+        if (!deliveredOrders || deliveredOrders.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        res.status(200).json(deliveredOrders);
+    } catch (error) {
+        console.error('Error fetching delivered orders:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.put('/menu/:menuId', authenticateToken, async (req, res) => {
+    const { menuId } = req.params;
+    const { price, quantity } = req.body;
+    const role = req.headers.role;
+    console.log(role);
+    try {
+        // Only canteen_staff can update menu items
+        if (role !== 'canteen_staff') {
+            return res.status(403).json({ error: 'You do not have permission to perform this action' });
+        }
+
+        const menuItem = await MenuItem.findByPk(menuId);
+
+        if (!menuItem) {
+            return res.status(404).json({ error: 'Menu item not found' });
+        }
+
+        // Update the menu item
+        menuItem.price = price;
+        menuItem.quantity = quantity;
+        await menuItem.save();
+
+        res.status(200).json({ message: 'Menu item updated successfully', menuItem });
+    } catch (error) {
+        console.error('Error updating menu item:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
