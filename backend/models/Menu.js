@@ -13,4 +13,9 @@ const MenuItem = sequelize.define('MenuItem', {
     available_to: { type: DataTypes.TIME, allowNull: false },
 }, { timestamps: true });
 
+// Define associations
+MenuItem.associate = (models) => {
+    MenuItem.hasMany(models.OrderItems, { foreignKey: 'item_id' });
+};
+
 module.exports = MenuItem;

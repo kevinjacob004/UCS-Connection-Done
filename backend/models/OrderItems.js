@@ -11,4 +11,10 @@ const OrderItem = sequelize.define('OrderItem', {
     price: { type: DataTypes.FLOAT, allowNull: false }
 }, { timestamps: false });
 
+// Define associations
+OrderItem.associate = (models) => {
+    OrderItem.belongsTo(models.Order, { foreignKey: 'order_id' });
+    OrderItem.belongsTo(models.MenuItem, { foreignKey: 'item_id' });
+};
+
 module.exports = OrderItem;

@@ -14,15 +14,15 @@ const OrderItems = require("./OrderItems");
 
 
 // Register associations
-User.associate({ Thread, Message, Counselling });
+User.associate({ Thread, Message, Counselling,Order });
 Thread.associate({ User, Message });
 Message.associate({ User, Thread });
 Counselling.associate({User});
 //CounsellingReport.associate({Counselling});
-// Canteen-related associations
-// MenuItem.associate({ OrderItem }); 
-// Order.associate({ User, OrderItem }); 
-// OrderItem.associate({ Order, MenuItem });
+// Define associations for MenuItem, Order, and OrderItems
+MenuItem.associate({ OrderItems });
+Order.associate({ OrderItems,User });
+OrderItems.associate({ Order, MenuItem });
 
 
 // Export models
