@@ -7,6 +7,7 @@ const communityRoutes = require("./routes/communityRoutes");
 const homeRoutes = require("./routes/homeRoutes");
 const counsellingRoutes = require("./routes/counsellingRoutes"); 
 const counsellingReportRoutes=require("./routes/counsellingReportRoutes");
+const canteenRoutes=require("./routes/canteenRoutes");
 
 dotenv.config();
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/community", communityRoutes); // Community routes
 app.use("/api/homepage",homeRoutes);
 app.use("/api/counselling",counsellingRoutes);
 app.use("/api/report",counsellingReportRoutes);
+app.use("/api/canteen",canteenRoutes);
 
 
 //Start server after DB connection
