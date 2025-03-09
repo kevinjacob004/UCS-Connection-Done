@@ -51,6 +51,24 @@
             display: flex;
             align-items: center;
             padding: 10px;
+            gap: 10px;
+
+        }
+
+        .sidebar ul li:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .sidebar ul li:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .sidebar ul li:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        .sidebar ul li:nth-child(5) {
+            animation-delay: 0.8s;
         }
 
         .sidebar ul li a:hover {
@@ -840,12 +858,12 @@
     <aside class="sidebar">
         <h2>Campus System</h2>
         <ul>
-            <li><a href="homepage.html"><i class="fas fa-home"></i> Home</a></li>
-            <li><a href="dash.html"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-            <li><a href="canteen.html"><i class="fas fa-utensils"></i> Canteen</a></li>
-            <li><a href="counselling.html"><i class="fas fa-user-md"></i> Counseling</a></li>
-            <li><a href="community.html"><i class="fas fa-users"></i> Community</a></li>
-            <li><a href="index.html" class="logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            <li><a href="homepage.html"><i class="fas fa-home"> </i> Home</a></li>
+            <li><a href="dash.html"><i class="fas fa-chart-line"> </i> Dashboard</a></li>
+            <li><a href="canteen.html"><i class="fas fa-utensils"> </i> Canteen</a></li>
+            <li><a href="counselling.html"><i class="fas fa-user-md"> </i> Counseling</a></li>
+            <li><a href="community.html"><i class="fas fa-users"> </i> Community</a></li>
+            <li><a href="index.html" class="logout"><i class="fas fa-sign-out-alt"> </i> Logout</a></li>
         </ul>
     </aside>
 
@@ -968,7 +986,7 @@
             if (role === 'canteen_staff') {
                 // Show admin panel for canteen staff
                 document.getElementById("adminPanel").style.display = "block";
-            } else {
+            } else if(role!=='admin') {
                 // Show cart section for non-canteen staff
                 document.getElementById("cartSection").style.display = "block";
             }
@@ -1159,7 +1177,7 @@
             `;
 
                     // Add edit functionality for canteen_staff
-                    if (role === 'canteen_staff') {
+                    if (role === 'canteen_staff'||role==='admin') {
                         const editForm = document.createElement("div");
                         editForm.className = "edit-form";
 
@@ -1207,7 +1225,7 @@
                     headers: {
                         "Content-Type": "application/json",
                         "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
-                        "Role" : role,
+                        "Role": role,
                     },
                     body: JSON.stringify({ price, quantity })
                 });
@@ -1495,6 +1513,9 @@
 
                 alert("Order placed successfully!");
                 fetchCartItems(); // Refresh the cart
+                fetchDeliveredOrders();
+                fetchOrders();
+                fetchReadyOrders();
             } catch (error) {
                 console.error("Error placing order:", error);
                 alert("Failed to place order.");
@@ -1757,10 +1778,12 @@
         }
         async function cancelOrder(orderId) {
             try {
+                const role=sessionStorage.getItem("role");
                 const response = await fetch(`${apiUrl}/orders/${orderId}/cancel`, {
                     method: "PUT",
                     headers: {
-                        "Authorization": `Bearer ${sessionStorage.getItem("token")}`
+                        "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
+                        "Role" : role,
                     }
                 });
 
@@ -1795,6 +1818,9 @@
                 const result = await response.json();
                 alert(result.message); // Show success message
                 fetchOrders(); // Refresh the orders list
+                fetchDeliveredOrders();
+                fetchReadyOrders();
+
             } catch (error) {
                 console.error("Error marking order as ready:", error);
                 alert("Failed to mark order as ready");
@@ -1805,7 +1831,7 @@
         // Show orders section based on user role
         function showOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student') {
+            if (role === 'canteen_staff' || role === 'student'||role==='admin') {
                 document.getElementById("ordersSection").style.display = "block";
                 fetchOrders(); // Fetch orders when the section is shown
             }
@@ -1956,6 +1982,8 @@
                 const result = await response.json();
                 alert(result.message); // Show success message
                 fetchReadyOrders(); // Refresh the ready orders list
+                fetchDeliveredOrders();
+                fetchOrders();
             } catch (error) {
                 console.error("Error marking order as delivered:", error);
                 alert("Failed to mark order as delivered");
@@ -1965,7 +1993,7 @@
         // Show ready orders section based on user role
         function showReadyOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student') {
+            if (role === 'canteen_staff' || role === 'student'||role==='admin') {
                 document.getElementById("readyOrdersSection").style.display = "block";
                 fetchReadyOrders(); // Fetch ready orders when the section is shown
             }
@@ -2034,7 +2062,7 @@
         // Show delivered orders section based on user role
         function showDeliveredOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student') {
+            if (role === 'canteen_staff' || role === 'student'||role==='admin') {
                 document.getElementById("deliveredOrdersSection").style.display = "block";
                 fetchDeliveredOrders(); // Fetch delivered orders when the section is shown
             }

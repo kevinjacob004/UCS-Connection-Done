@@ -138,7 +138,7 @@
 
 
 const express = require('express');
-const { MenuItem, Order, OrderItems,User } = require('../models'); // Import the models
+const { MenuItem, Order, OrderItems, User } = require('../models'); // Import the models
 const authenticateToken = require("../middleware/authenticateToken");
 
 const router = express.Router();
@@ -223,7 +223,7 @@ router.post('/cart/add', async (req, res) => {
         if (orderItem) {
             // Update quantity if item already exists in the cart
             orderItem.quantity += quantity;
-            orderItem.price=menuItem.price*orderItem.quantity;
+            orderItem.price = menuItem.price * orderItem.quantity;
             await orderItem.save();
         } else {
             // Add new item to the cart
@@ -440,8 +440,8 @@ router.get('/orders', authenticateToken, async (req, res) => {
 
     try {
         let orders;
-        // console.log(role);
-        if (role === 'canteen_staff') {
+        //console.log(role);
+        if (role === 'canteen_staff' || role === 'admin') {
             //console.log(role);
             // Fetch all orders with status 'placed' for canteen staff
             orders = await Order.findAll({
@@ -488,12 +488,29 @@ router.get('/orders', authenticateToken, async (req, res) => {
 router.put('/orders/:orderId/cancel', authenticateToken, async (req, res) => {
     const { orderId } = req.params; // Get the order ID from the URL
     const user_id = req.user.id; // Get the user ID from the token
+    const role = req.headers.role;
     // console.log(user_id);
     try {
         // Find the order
         const order = await Order.findOne({
             where: { order_id: orderId, user_id } // Ensure the order belongs to the user
         });
+
+        if (role === 'admin') {
+            const ordadmin = await Order.findOne({
+                where: { order_id: orderId } // Ensure the order belongs to the user
+            });
+            console.log(ordadmin);
+            if (!ordadmin) {
+                console.log(role);
+                return res.status(404).json({ error: 'Order not found or you do not have permission to cancel this order' });
+            }
+            ordadmin.order_status = 'cancelled';
+            await ordadmin.save();
+
+            res.status(200).json({ message: 'Order cancelled successfully', ordadmin });
+            return;
+        }
 
         if (!order) {
             return res.status(404).json({ error: 'Order not found or you do not have permission to cancel this order' });
@@ -547,7 +564,7 @@ router.get('/orders/ready', authenticateToken, async (req, res) => {
     try {
         let readyOrders;
 
-        if (role === 'canteen_staff') {
+        if (role === 'canteen_staff' || role === 'admin') {
             // Fetch all orders with status 'ready' for canteen staff
             readyOrders = await Order.findAll({
                 where: { order_status: 'ready' },
@@ -628,7 +645,7 @@ router.get('/orders/delivered', authenticateToken, async (req, res) => {
     try {
         let deliveredOrders;
 
-        if (role === 'canteen_staff') {
+        if (role === 'canteen_staff' || role === 'admin') {
             // Fetch all orders with status 'delivered' for canteen staff
             deliveredOrders = await Order.findAll({
                 where: { order_status: 'delivered' },
