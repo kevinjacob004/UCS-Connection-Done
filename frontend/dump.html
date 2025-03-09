@@ -381,7 +381,125 @@
                 alert("Failed to place order.");
             }
         }
+        <!-- <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const params = new URLSearchParams(window.location.search);
+            const sessionId = params.get("session_id");
+            document.getElementById("sessionId").value = sessionId;
 
+            const token = sessionStorage.getItem("token");
+            if (!token) {
+                alert("❌ You are not logged in. Redirecting to login...");
+                window.location.href = "auth.html";
+                return;
+            }
+            const role = sessionStorage.getItem("role");
+            console.log(role);
+            // Fetch report details for the session_id
+            try {
+                const response = await fetch(`http://localhost:5000/api/report/${sessionId}`, {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
+
+                // Check if the response is OK (status code 200-299)
+                if (response.ok) {
+                    const report = await response.json();
+                    displayReportDetails(report);
+                } else if (response.status === 404) {
+                    // If no report exists, display the "write" form
+                    if (role === 'counselor') {
+                        displayWriteReportForm();
+                    }
+                    else if (role === 'admin') {
+                        // Should display no report generated
+                        displayNoReportGenerated(); // Show message for admin
+                    }
+                } else {
+                    // Handle other errors
+                    const errorText = await response.text(); // Log the response text for debugging
+                    console.error("❌ Error fetching report:", errorText);
+                    alert("❌ Error fetching report. Check console for details.");
+                }
+            } catch (error) {
+                console.error("❌ Error fetching report:", error);
+                alert("❌ Error fetching report. Check console for details.");
+            }
+        });
+
+        function displayNoReportGenerated() {
+            const viewReportDetails = document.getElementById("viewReportDetails");
+            viewReportDetails.style.display = "block";
+            viewReportDetails.innerHTML = `
+        <h2>Report Details</h2>
+        <p><strong>No report generated for this session.</strong></p>
+        <button class="back-button" onclick="window.location.href = 'counselling.html';">Back to Counselling</button>
+    `;
+        }
+
+
+        function displayWriteReportForm() {
+            document.getElementById("writeReportForm").style.display = "block";
+            document.getElementById("reportTitle").textContent = "Write Counselling Report";
+        }
+
+        function displayReportDetails(report) {
+            document.getElementById("viewReportDetails").style.display = "block";
+            document.getElementById("reportTitle").textContent = "View Counselling Report";
+
+            document.getElementById("viewStudentName").textContent = report.student_name;
+            document.getElementById("viewStudentAge").textContent = report.student_age;
+            document.getElementById("viewProblemDetails").textContent = report.problem_details;
+            document.getElementById("viewSolution").textContent = report.solution;
+        }
+
+        document.getElementById("reportForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const sessionId = document.getElementById("sessionId").value;
+            const studentName = document.getElementById("studentName").value;
+            const studentAge = document.getElementById("studentAge").value;
+            const problemDetails = document.getElementById("problemDetails").value;
+            const solution = document.getElementById("solution").value;
+
+            const token = sessionStorage.getItem("token");
+            if (!token) {
+                alert("❌ You are not logged in. Redirecting to login...");
+                window.location.href = "auth.html";
+                return;
+            }
+
+            try {
+                const response = await fetch("http://localhost:5000/api/report/add-report", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        counselling_id: sessionId,
+                        student_name: studentName,
+                        student_age: studentAge,
+                        problem_details: problemDetails,
+                        solution: solution,
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("✅ Report submitted successfully!");
+                    window.location.href = `report.html?session_id=${sessionId}`; // Redirect to view mode
+                } else {
+                    alert(`⚠️ Failed to submit report: ${data.error || "Unknown error"}`);
+                }
+            } catch (error) {
+                console.error("❌ Error submitting report:", error);
+                alert("❌ Error submitting report. Check console for details.");
+            }
+        });
+    </script> -->
 
 
     </script>

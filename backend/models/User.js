@@ -45,6 +45,8 @@ User.associate = (models) => {
   User.hasMany(models.Counselling, { foreignKey: "student_id" });
   User.hasMany(models.Counselling, { foreignKey: "counsellor_id" });
   User.hasMany(models.Order, { foreignKey: "user_id" });
+  User.hasMany(models.CounsellingReport, { foreignKey: "student_id" });
+
 };
 
 // Sync model with database
