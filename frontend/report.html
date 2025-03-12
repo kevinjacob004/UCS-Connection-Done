@@ -698,7 +698,7 @@
                 <label>Department:</label>
                 <input type="text" id="department" required>
                 <label>Date of Assessment:</label>
-                <input type="date" id="dateOfAssessment" required>
+                <input  id="dateOfAssessment" required>
                 <label>Referred By:</label>
                 <input type="text" id="referredBy">
                 <label>Background Information:</label>
@@ -833,7 +833,7 @@
                     displayReportDetails(data);
                 } else if (response.status === 404) {
                     if (role === 'counselor') {
-                        displayWriteReportForm(data.student_name);
+                        displayWriteReportForm(data.student_name,data.user_name,data.date_session);
                     } else if (role === 'admin') {
                         displayNoReportGenerated();
                     }
@@ -856,10 +856,31 @@
             `;
         }
 
-        function displayWriteReportForm(studentName) {
+        function displayWriteReportForm(studentName,username,sdate) {
             document.getElementById("writeReportForm").style.display = "block";
             document.getElementById("reportTitle").textContent = "Write Counselling Report";
             document.getElementById("studentName").value = studentName; // Auto-fill student name
+            if(username.includes("CS")){
+                console.log("CS");
+                document.getElementById("department").value="Computer Science";
+            }
+            else if(username.includes("EC")){
+                document.getElementById("department").value="Electronic and Communication";
+            }
+            else if(username.includes("ME")){
+                document.getElementById("department").value="Mechanical Engineering";
+            }
+            else if(username.includes("EEE")){
+                document.getElementById("department").value="Electronics and Electrical";
+            }
+            else{
+                console.log("test");                
+                document.getElementById("department").value="";
+            }
+            document.getElementById("dateOfAssessment").value = sdate;
+            const coun_fname=sessionStorage.getItem("fname");
+            const coun_lname=sessionStorage.getItem("lname");
+            document.getElementById("referredBy").value=`${coun_fname} ${coun_lname}`;
         }
 
         function displayReportDetails(report) {

@@ -986,7 +986,7 @@
             if (role === 'canteen_staff') {
                 // Show admin panel for canteen staff
                 document.getElementById("adminPanel").style.display = "block";
-            } else if(role!=='admin') {
+            } else if (role !== 'admin') {
                 // Show cart section for non-canteen staff
                 document.getElementById("cartSection").style.display = "block";
             }
@@ -1160,8 +1160,19 @@
                 const role = sessionStorage.getItem("role");
 
                 menu.forEach(item => {
+
+                    const currentTime = new Date();
+                    const currentHours = String(currentTime.getHours()).padStart(2, '0');
+                    const currentMinutes = String(currentTime.getMinutes()).padStart(2, '0');
+                    const currentFormattedTime = `${currentHours}:${currentMinutes}`;
+
+                    // Function to check if the current time is within the available range
+                    function isWithinAvailableTime(currentTime, fromTime, toTime) {
+                        return currentTime >= fromTime && currentTime <= toTime;
+                    }
+
                     // For students, only display items with quantity > 0
-                    if (role === 'student' && item.quantity <= 0) {
+                    if (role === 'student' && item.quantity <= 0|| role==='student'&&!isWithinAvailableTime(currentFormattedTime, item.available_from, item.available_to)) {
                         return; // Skip this item
                     }
 
@@ -1176,8 +1187,13 @@
                 <p>Quantity: ${item.quantity}</p>
             `;
 
+                    // if (role === 'canteen_staff'||role==='admin') {
+                    //     menuItem.innerHTML += `<p>Quantity: ${item.quantity}</p>`;
+                    // }
+
+
                     // Add edit functionality for canteen_staff
-                    if (role === 'canteen_staff'||role==='admin') {
+                    if (role === 'canteen_staff' || role === 'admin') {
                         const editForm = document.createElement("div");
                         editForm.className = "edit-form";
 
@@ -1778,12 +1794,12 @@
         }
         async function cancelOrder(orderId) {
             try {
-                const role=sessionStorage.getItem("role");
+                const role = sessionStorage.getItem("role");
                 const response = await fetch(`${apiUrl}/orders/${orderId}/cancel`, {
                     method: "PUT",
                     headers: {
                         "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
-                        "Role" : role,
+                        "Role": role,
                     }
                 });
 
@@ -1831,7 +1847,7 @@
         // Show orders section based on user role
         function showOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student'||role==='admin') {
+            if (role === 'canteen_staff' || role === 'student' || role === 'admin') {
                 document.getElementById("ordersSection").style.display = "block";
                 fetchOrders(); // Fetch orders when the section is shown
             }
@@ -1993,7 +2009,7 @@
         // Show ready orders section based on user role
         function showReadyOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student'||role==='admin') {
+            if (role === 'canteen_staff' || role === 'student' || role === 'admin') {
                 document.getElementById("readyOrdersSection").style.display = "block";
                 fetchReadyOrders(); // Fetch ready orders when the section is shown
             }
@@ -2062,7 +2078,7 @@
         // Show delivered orders section based on user role
         function showDeliveredOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student'||role==='admin') {
+            if (role === 'canteen_staff' || role === 'student' || role === 'admin') {
                 document.getElementById("deliveredOrdersSection").style.display = "block";
                 fetchDeliveredOrders(); // Fetch delivered orders when the section is shown
             }

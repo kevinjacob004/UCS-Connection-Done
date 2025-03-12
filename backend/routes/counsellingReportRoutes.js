@@ -96,28 +96,41 @@ const { CounsellingReport, Counselling, User } = require("../models"); // Import
 router.get("/:session_id", authenticateToken, async (req, res) => {
     try {
         const sessionId = req.params.session_id;
+        
 
         // ✅ Get counselling session to fetch student_id
         const counsellingSession = await Counselling.findOne({
             where: { session_id: sessionId },
-            include: [{ model: User, as: "Student", attributes: ["first_name", "last_name"] }],
+            include: [{ model: User, as: "Student", attributes: ["first_name", "last_name","username"] }],
         });
 
+        // const coun = await Counselling.findOne({
+        //     where: { session_id: sessionId },
+        //     include: [{ model: User, as: "Counsellor", attributes: ["first_name", "last_name","username"] }],
+        // });
         if (!counsellingSession) {
             return res.status(404).json({ error: "Counselling session not found" });
         }
 
-        const studentName = `${counsellingSession.Student.first_name} ${counsellingSession.Student.last_name}`;
+        //const c_name=`${coun.first_name} ${coun.last_name}`;
 
+        const counsdate =`${counsellingSession.session_date_time}`;
+        const studentName = `${counsellingSession.Student.first_name} ${counsellingSession.Student.last_name}`;
+        const studentusername=`${counsellingSession.Student.username}`;
+        //console.log(studentusername);
         // ✅ Get the report if it exists
         const report = await CounsellingReport.findOne({
             where: { counselling_id: sessionId },
         });
+        //console.log(c_name);
 
         if (!report) {
             return res.status(404).json({
                 error: "Report not found",
                 student_name: studentName, // Send student name even if report doesn't exist
+                user_name: studentusername,
+                date_session:counsdate,
+                //cname:c_name,
             });
         }
 

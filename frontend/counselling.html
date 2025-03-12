@@ -558,7 +558,7 @@
 
 
             //Time difference correction if required!!
-            selectedDateTime.setHours(selectedDateTime.getHours() + 11);
+            //selectedDateTime.setHours(selectedDateTime.getHours() + 11);
 
 
 
@@ -632,7 +632,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             // Get today's date
             const today = new Date();
-            today.setDate(today.getDate() +0);
+
             // Calculate the date 3 days from today
             const maxDate = new Date(today);
             maxDate.setDate(today.getDate() + 5);
@@ -1297,7 +1297,6 @@
         //         alert("Failed to cancel slot. Please try again.");
         //     }
         // }
-
         async function cancelSlot(sessionId) {
             if (!confirm("Are you sure you want to cancel this slot?")) return;
 
@@ -1322,9 +1321,6 @@
                 alert(error.message || "Failed to cancel slot. Please try again.");
             }
         }
-
-
-
 
         async function submitFeedback(sessionId) {
             const feedbackText = document.getElementById(`feedback-${sessionId}`).value.trim();

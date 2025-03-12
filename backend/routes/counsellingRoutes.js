@@ -355,6 +355,8 @@ router.put("/add-feedback/:session_id", async (req, res) => {
 //     }
 // });
 
+
+
 router.delete("/cancel-slot/:sessionId", authenticateToken, async (req, res) => {
     const { sessionId } = req.params;
     const userId = req.user.id; // Assuming the user ID is available in the token
@@ -398,6 +400,7 @@ router.delete("/cancel-slot/:sessionId", authenticateToken, async (req, res) => 
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
+
 
 // router.get("/admin-booked-slots", authenticateToken, async (req, res) => {
 //     try {
