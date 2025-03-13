@@ -7,6 +7,7 @@
     <title>Canteen - Unified Campus System</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <style>
         /* Your existing CSS styles */
         body {
@@ -979,6 +980,46 @@
 
     <script>
         const apiUrl = "http://localhost:5000/api/canteen"; // Adjust based on your backend
+        // Initialize Socket.IO
+        const socket = io("http://localhost:5000"); // Replace with your server URL
+
+        // Listen for new menu items
+        socket.on("newMenuItem", (item) => {
+            fetchMenu(); // Refresh the menu
+        });
+
+        // Listen for updated menu items
+        socket.on("menuItemUpdated", (item) => {
+            fetchMenu(); // Refresh the menu
+        });
+        socket.on("cancelOrder", (item) => {
+            fetchMenu(); // Refresh the menu
+            fetchOrders();
+        });
+
+        // // Listen for items added to cart
+        // socket.on("itemAddedToCart", (cartItem) => {
+        //     fetchCartItems(); // Refresh the cart
+        // });
+
+        // // Listen for items removed from cart
+        // socket.on("itemRemovedFromCart", (cartItemId) => {
+        //     fetchCartItems(); // Refresh the cart
+        // });
+
+        // Listen for new orders
+        socket.on("orderPlaced", (order) => {
+            fetchMenu();
+            fetchOrders(); // Refresh the orders list
+            fetchCartItems(); // Refresh the cart (clear it after placing an order)
+        });
+
+        // Listen for order status updates
+        socket.on("orderStatusUpdated", (order) => {
+            fetchOrders(); // Refresh the orders list
+            fetchReadyOrders(); // Refresh the ready orders list
+            fetchDeliveredOrders(); // Refresh the delivered orders list
+        });
 
         // Check user role on page load
         function checkUserRole() {
@@ -1172,7 +1213,7 @@
                     }
 
                     // For students, only display items with quantity > 0
-                    if (role === 'student' && item.quantity <= 0|| role==='student'&&!isWithinAvailableTime(currentFormattedTime, item.available_from, item.available_to)) {
+                    if ((role === 'student' || role === 'counselor') && item.quantity <= 0 || (role === 'student' || role === 'counselor') && !isWithinAvailableTime(currentFormattedTime, item.available_from, item.available_to)) {
                         return; // Skip this item
                     }
 
@@ -1203,6 +1244,10 @@
                         <input type="number" id="price-${item.menu_id}" value="${item.price}" placeholder="Price" />
                         <label for="quantity-${item.menu_id}">Quantity</label>
                         <input type="number" id="quantity-${item.menu_id}" value="${item.quantity}" placeholder="Quantity" />
+                        <label for="available_from-${item.menu_id}">Available From</label>
+                        <input type="time" id="available_from-${item.menu_id}" value="${item.available_from}" placeholder="Available From" />
+                        <label for="available_to-${item.menu_id}">Available To</label>
+                        <input type="time" id="available_to-${item.menu_id}" value="${item.available_to}" placeholder="Available To" />
                         <button onclick="updateMenuItem(${item.menu_id})">Update</button>
                     </div>
                 `;
@@ -1234,6 +1279,8 @@
             try {
                 const price = document.getElementById(`price-${menuId}`).value;
                 const quantity = document.getElementById(`quantity-${menuId}`).value;
+                const avail_from = document.getElementById(`available_from-${menuId}`).value;
+                const avail_to = document.getElementById(`available_to-${menuId}`).value;
                 const role = sessionStorage.getItem("role");
 
                 const response = await fetch(`${apiUrl}/menu/${menuId}`, {
@@ -1243,7 +1290,7 @@
                         "Authorization": `Bearer ${sessionStorage.getItem("token")}`,
                         "Role": role,
                     },
-                    body: JSON.stringify({ price, quantity })
+                    body: JSON.stringify({ price, quantity, avail_from, avail_to })
                 });
 
                 if (!response.ok) {
@@ -1252,7 +1299,7 @@
 
                 const result = await response.json();
                 alert(result.message); // Show success message
-                fetchMenu(); // Refresh the menu
+                //fetchMenu(); // Refresh the menu
             } catch (error) {
                 console.error("Error updating menu item:", error);
                 alert("Failed to update menu item");
