@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <link rel="shortcut icon" href="1.png" type="image/x-icon">
     <style>
         /* Your existing CSS styles */
         body {
@@ -1894,7 +1895,7 @@
         // Show orders section based on user role
         function showOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student' || role === 'admin') {
+            if (role === 'canteen_staff' || role === 'student' || role === 'admin'||role === 'counselor') {
                 document.getElementById("ordersSection").style.display = "block";
                 fetchOrders(); // Fetch orders when the section is shown
             }
@@ -2056,7 +2057,7 @@
         // Show ready orders section based on user role
         function showReadyOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student' || role === 'admin') {
+            if (role === 'canteen_staff' || role === 'student' || role === 'admin'||role === 'counselor') {
                 document.getElementById("readyOrdersSection").style.display = "block";
                 fetchReadyOrders(); // Fetch ready orders when the section is shown
             }
@@ -2125,7 +2126,7 @@
         // Show delivered orders section based on user role
         function showDeliveredOrdersSection() {
             const role = sessionStorage.getItem("role");
-            if (role === 'canteen_staff' || role === 'student' || role === 'admin') {
+            if (role === 'canteen_staff' || role === 'student' || role === 'admin'||role === 'counselor') {
                 document.getElementById("deliveredOrdersSection").style.display = "block";
                 fetchDeliveredOrders(); // Fetch delivered orders when the section is shown
             }

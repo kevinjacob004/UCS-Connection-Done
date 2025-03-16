@@ -234,7 +234,7 @@
     <main class="main-content">
       <header>
         <h1 id="welcome-message">Welcome, User</h1>
-        <button class="profile-btn">
+        <button class="profile-btn" onclick="gotoProfile()">
           <i class="fas fa-user-circle"></i> Profile
         </button>
       </header>
@@ -291,6 +291,9 @@
   </div>
 
   <script>
+    function gotoProfile(){
+      window.location.href="profile.html"
+    }
     // Function to fetch total students from the backend
     async function fetchTotalStudents() {
       try {
