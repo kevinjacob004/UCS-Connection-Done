@@ -5,10 +5,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile - Unified Campus System</title>
-    <link rel="shortcut icon" href="1.png" type="image/x-icon">
+    <link rel="shortcut icon" href="./static/1.png" type="image/x-icon">
     <style>
         body {
-            background-image: url("giphy.gif");
+            background-image: url("./static/giphy.gif");
             background-size: cover;
             background-repeat: no-repeat;
             background-position: center center;
@@ -320,10 +320,13 @@
 
         // Logout function
         function logout() {
+            sessionStorage.removeItem("token");
             sessionStorage.removeItem("username");
             sessionStorage.removeItem("fname");
             sessionStorage.removeItem("lname");
             sessionStorage.removeItem("id");
+            sessionStorage.removeItem("role");
+            sessionStorage.removeItem("email");
             window.location.href = "auth.html";
         }
 

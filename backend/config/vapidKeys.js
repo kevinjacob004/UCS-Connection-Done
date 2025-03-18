@@ -1,0 +1,4 @@
+module.exports = {
+    publicKey: 'YOUR_VAPID_PUBLIC_KEY',
+    privateKey: 'YOUR_VAPID_PRIVATE_KEY',
+};
