@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Canteen Payment</title>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        body {
+            margin: 0px;
+            border: 0px;
+            display: flex;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        .con{
+            justify-content: center;
+            margin-left: 300px;
+            text-align: center;
+            width: max-content;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>College Canteen Payment</h2>
+    <div class="con">
+        <label for="amount">Enter Amount (₹):</label>
+        <textarea type="number" id="amount" placeholder="Enter amount" min="1" required></textarea>
+        <button id="payBtn">Pay Now</button>
+    </div>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const role = sessionStorage.getItem("role");
+            console.log(role);
+            const price = sessionStorage.getItem("t_price");
+                console.log(price);
+            if ((role === 'student' || role === 'admin' || role === 'counselor' || role === 'canteen_staff')&&price!==null) {
+                
+                document.getElementById("amount").value = price;
+            }
+            else {
+                window.location.href = "auth.html"
+
+            }
+
+        });
+        document
+            .getElementById("payBtn")
+            .addEventListener("click", async function () {
+                try {
+                    // Step 1: Get user-entered amount
+                    const amount = document.getElementById("amount").value;
+                    console.log(amount);
+                    if (!amount || amount <= 0) {
+                        alert("Please enter a valid amount!");
+                        return;
+                    }
+
+                    // Step 2: Request Order Creation from Backend
+                    const response = await fetch(
+                        "http://localhost:5000/api/payment/create-order",
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                amount: parseInt(amount),
+                                currency: "INR",
+                            }),
+                        }
+                    );
+
+                    if (!response.ok) throw new Error("Failed to create order");
+
+                    const order = await response.json();
+
+                    // Step 3: Open Razorpay Checkout
+                    var options = {
+                        key: "rzp_test_Q9ibfvruuihVFP", // Replace with your actual Razorpay Key ID
+                        amount: order.amount,
+                        currency: order.currency,
+                        name: "College Canteen",
+                        description: "Payment for food items",
+                        order_id: order.id,
+                        handler: async function (response) {
+                            // Step 4: Verify Payment on Backend
+                            const verifyRes = await fetch(
+                                "http://localhost:5000/api/payment/verify",
+                                {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify(response),
+                                }
+                            );
+
+                            const verifyData = await verifyRes.json();
+                            if (verifyData.success) {
+                                alert("✅ Payment Successful!\nOrder placed successfully!");
+                                //alert("Order placed successfully!");
+                                sessionStorage.removeItem("t_price");
+                                window.location.href="canteen.html"
+                            } else {
+                                alert("❌ Payment Verification Failed!");
+                            }
+                        },
+                        prefill: {
+                            name: "Jude",
+                            email: "jude@example.com",
+                            contact: "9999999999",
+                        },
+                        theme: {
+                            color: "#3399cc",
+                        },
+                    };
+
+                    var rzp1 = new Razorpay(options);
+                    rzp1.open();
+                } catch (error) {
+                    console.error("Payment Error:", error);
+                    alert("Something went wrong! Check console.");
+                }
+            });
+
+    </script>
+</body>
+
+</html>

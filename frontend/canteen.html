@@ -1248,8 +1248,10 @@
                     throw new Error("Failed to place order"); // Handle all other non-2xx status codes
                 }
 
-
-                alert("Order placed successfully!");
+                sessionStorage.setItem("t_price",orderData.order.total_price);
+                console.log(orderData.order.total_price);
+                window.location.href="collegecanteen.html";
+                //alert(".Order placed successfully!");
                 fetchCartItems(); // Refresh the cart
                 fetchDeliveredOrders();
                 fetchOrders();
@@ -1623,6 +1625,7 @@
         document.addEventListener("DOMContentLoaded", () => {
             const role = sessionStorage.getItem("role");
             console.log(role);
+            sessionStorage.removeItem("t_price");
             if (role === 'student' || role === 'admin' || role === 'counselor' || role === 'canteen_staff') {
                 checkUserRole();
                 fetchMenu();

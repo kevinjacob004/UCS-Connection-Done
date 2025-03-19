@@ -1,63 +1,3 @@
-// const express = require("express");
-// const dotenv = require("dotenv");
-// const sequelize = require("./config/db");
-// const authRoutes = require("./routes/authRoutes");
-// const cors = require("cors");
-// const communityRoutes = require("./routes/communityRoutes");
-// const homeRoutes = require("./routes/homeRoutes");
-// const counsellingRoutes = require("./routes/counsellingRoutes"); 
-// const counsellingReportRoutes=require("./routes/counsellingReportRoutes");
-// const canteenRoutes=require("./routes/canteenRoutes");
-
-// dotenv.config();
-// const app = express();
-
-
-// // console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
-
-
-
-// // Enable CORS with specific options
-// const corsOptions = {
-//     origin: "*", // Allow all origins (replace with your frontend URL in production)
-//     methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allow all HTTP methods
-//     preflightContinue: false,
-//     optionsSuccessStatus: 204, // Respond with 204 No Content for preflight requests
-// };
-
-
-// app.use(cors(corsOptions));
-
-// // Enable CORS for all routes
-
-// // Handle preflight requests
-// app.options("*", cors(corsOptions)); // Allow preflight requests for all routes
-
-
-// app.use(express.json()); // Middleware for parsing JSON
-
-
-// app.use("/api/auth", authRoutes); // Mount auth routes
-// app.use("/api/community", communityRoutes); // Community routes
-// app.use("/api/homepage",homeRoutes);
-// app.use("/api/counselling",counsellingRoutes);
-// app.use("/api/report",counsellingReportRoutes);
-// app.use("/api/canteen",canteenRoutes);
-
-
-// //Start server after DB connection
-// sequelize.authenticate()
-//     .then(() => {
-//         console.log("Connected to MySQL");
-//         app.listen(5000, () => console.log("Server running on port 5000"));
-//     })
-//     .catch(err => console.error("Database connection error:", err));
-
-// app.get('/',(req,res)=>{
-//     res.send("Running");
-// });
-
-
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -70,7 +10,8 @@ const homeRoutes = require("./routes/homeRoutes");
 const counsellingRoutes = require("./routes/counsellingRoutes");
 const counsellingReportRoutes = require("./routes/counsellingReportRoutes");
 const canteenRoutes = require("./routes/canteenRoutes");
-
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
 
 dotenv.config();
 const app = express();
@@ -155,9 +96,58 @@ io.on("connection", (socket) => {
 
 });
 
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Initialize Razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+// 🔹 Create Order API (Allows User to Input Amount)
+app.post("/api/payment/create-order", async (req, res) => {
+  let { amount, currency } = req.body;
+  console.log(amount);
+  try {
+      // 🔹 Validate Amount
+      if (!amount || isNaN(amount) || amount <= 0) {
+          return res.status(400).json({ success: false, message: "Invalid amount entered!" });
+      }
+
+      const options = {
+          amount: amount * 100, // Convert ₹ to paise
+          currency: currency || "INR",
+          receipt: "order_rcptid_" + Math.random().toString(36).substr(2, 9),
+      };
+
+      const order = await razorpay.orders.create(options);
+      res.json(order);
+  } catch (error) {
+      console.error("Error creating order:", error);
+      res.status(500).json({ error: error.message });
+  }
+});
+
+// 🔹 Verify Payment API
+app.post("/api/payment/verify", async (req, res) => {
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+  const generatedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(razorpay_order_id + "|" + razorpay_payment_id)
+      .digest("hex");
+
+  if (generatedSignature === razorpay_signature) {
+      res.json({ success: true, message: "Payment verified successfully!" });
+  } else {
+      res.status(400).json({ success: false, message: "Payment verification failed!" });
+  }
+});
+
+
 
 // Routes
 app.use("/api/auth", authRoutes);

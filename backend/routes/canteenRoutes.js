@@ -347,7 +347,7 @@ router.post('/order/place', async (req, res) => {
         await order.save();
         const io = req.app.get("io");
         io.emit("orderPlaced", order);
-
+        console.log(order.total_price);
         res.status(200).json({ message: 'Order placed successfully', order });
     } catch (error) {
         console.error('Error placing order:', error);
