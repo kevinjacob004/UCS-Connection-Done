@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Thread, Message, User,Notification } = require("../models");
+const { Thread, Message, User, Notification } = require("../models");
 const authenticateToken = require("../middleware/auth");
 
 // ✅ Function to safely get `io`
@@ -137,25 +137,27 @@ router.post("/messages", authenticateToken, async (req, res) => {
             body: `${name} commented: "${message_content}"`,
             isRead: false,
         });
-        
 
-        // 🔹 Emit Event for Real-Time Notification (Push Notification)
-        const io = getIo(req); // Get the Socket.IO instance
-        if (io) {
-            io.to(`user_${postOwner.id}`).emit("newNotification", {
-                notification_id: notification.id,
-                title: notification.title,
-                body: notification.body,
-                isRead: notification.isRead,
-                commenterName: name,
+        if (user_id !== postOwner.id) {
+            // 🔹 Emit Event for Real-Time Notification (Push Notification)
+            const io = getIo(req); // Get the Socket.IO instance
+            if (io) {
+                io.to(`user_${postOwner.id}`).emit("newNotification", {
+                    notification_id: notification.id,
+                    title: notification.title,
+                    body: notification.body,
+                    isRead: notification.isRead,
+                    commenterName: name,
+                });
+            }
+
+            // 🔹 Emit Event for Real-Time Comment Update
+            io.emit("newComment", {
+                ...newMessage.toJSON(),
+                User: { first_name: req.user.first_name, last_name: req.user.last_name },
             });
-        }
 
-        // 🔹 Emit Event for Real-Time Comment Update
-        io.emit("newComment", {
-            ...newMessage.toJSON(),
-            User: { first_name: req.user.first_name, last_name: req.user.last_name },
-        });
+        }
 
         res.status(201).json(newMessage);
     } catch (error) {

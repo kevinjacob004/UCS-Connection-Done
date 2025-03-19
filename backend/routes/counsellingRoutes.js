@@ -37,34 +37,12 @@ router.get("/available-counsellors", async (req, res) => {
     }
 });
 
-
-// router.post("/book-slot", async (req, res) => {
-//     try {
-//       const { student_id, counsellor_id, session_date_time } = req.body;
-//       const formattedDateTime = new Date(session_date_time).toISOString().slice(0, 19).replace("T", " ");
-
-//       if (!counsellor_id) return res.status(400).json({ error: "No counsellor selected" });
-
-//       const existingSlot = await Counselling.findOne({
-//         where: { counsellor_id, session_date_time: formattedDateTime },
-//       });
-
-//       if (existingSlot) return res.status(400).json({ error: "This counsellor is unavailable at this time" });
-
-//       const booking = await Counselling.create({ student_id, counsellor_id, session_date_time: formattedDateTime });
-//       res.json({ message: "Session booked successfully!", booking });
-
-//     } catch (error) {
-//       console.error("Error booking slot:", error);
-//       res.status(500).json({ error: "Internal Server Error" });
-//     }
-//   });
 // ✅ Emit when a new slot is booked
 router.post("/book-slot", async (req, res) => {
     try {
         const { student_id, counsellor_id, session_date_time } = req.body;
         // const booking = await Counselling.create({ student_id, counsellor_id, session_date_time });
-        
+
         const formattedDateTime = new Date(session_date_time).toISOString().slice(0, 19).replace("T", " ");
 
         if (!counsellor_id) return res.status(400).json({ error: "No counsellor selected" });
@@ -80,6 +58,9 @@ router.post("/book-slot", async (req, res) => {
 
         res.json({ message: "Session booked successfully!", booking });
     } catch (error) {
+        if (error.name === "SequelizeUniqueConstraintError") {
+            return res.status(400).json({ error: "This counsellor is unavailable at this time" });
+        }
         res.status(500).json({ error: "Internal Server Error" });
     }
 });
@@ -199,51 +180,6 @@ router.get("/booked-slots", authenticateToken, async (req, res) => {
 });
 
 
-
-// router.post("/book-slot", async (req, res) => {
-//     try {
-//         const { student_id, counsellor_id, session_date_time } = req.body;
-
-//         if (!student_id || !counsellor_id || !session_date_time) {
-//             return res.status(400).json({ error: "Missing required fields" });
-//         }
-
-//         // ✅ Check if this student has already booked this time slot
-//         const existingBooking = await Counselling.findOne({
-//             where: { student_id, session_date_time }
-//         });
-
-//         if (existingBooking) {
-//             return res.status(400).json({ error: "You have already booked this slot" });
-//         }
-
-//         // ✅ Check if the counsellor is available at this time
-//         const counsellorUnavailable = await Counselling.findOne({
-//             where: { counsellor_id, session_date_time }
-//         });
-
-//         if (counsellorUnavailable) {
-//             return res.status(400).json({ error: "This counsellor is unavailable at this time" });
-//         }
-
-//         // ✅ Store the booking directly without conversion
-//         const booking = await Counselling.create({
-//             student_id,
-//             counsellor_id,
-//             session_date_time
-//         });
-
-//         res.json({ message: "Session booked successfully!", booking });
-
-//     } catch (error) {
-//         console.error("Error booking slot:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-
-
-
-
 // 🔹 Fetch booked slots for the logged-in student
 router.get("/student-booked-slots", authenticateToken, async (req, res) => {
     try {
@@ -269,119 +205,6 @@ router.get("/student-booked-slots", authenticateToken, async (req, res) => {
     }
 });
 
-
-
-
-// router.put("/add-remark/:session_id", async (req, res) => {
-//     try {
-//         const { session_id } = req.params;
-//         const { remark } = req.body;
-
-//         if (!remark.trim()) return res.status(400).json({ error: "Remark cannot be empty" });
-
-//         const slot = await Counselling.findByPk(session_id);
-//         if (!slot) return res.status(404).json({ error: "Slot not found" });
-
-//         slot.remark = remark; // ✅ Store remark
-//         await slot.save();
-
-//         res.json({ message: "Remark added successfully!", slot });
-//     } catch (error) {
-//         console.error("Error adding remark:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-
-
-// router.put("/add-feedback/:session_id", async (req, res) => {
-//     try {
-//         const { session_id } = req.params;
-//         const { feedback } = req.body;
-
-//         if (!feedback.trim()) return res.status(400).json({ error: "Feedback cannot be empty" });
-
-//         const slot = await Counselling.findByPk(session_id);
-//         if (!slot) return res.status(404).json({ error: "Slot not found" });
-
-//         // ✅ Ensure feedback can be added **only if a remark exists**
-//         if (!slot.remark) {
-//             return res.status(400).json({ error: "Feedback can only be added after a remark" });
-//         }
-
-//         slot.feedback = feedback; // ✅ Store feedback
-//         await slot.save();
-
-//         res.json({ message: "Feedback added successfully!", slot });
-//     } catch (error) {
-//         console.error("Error adding feedback:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-
-
-
-
-
-// router.delete("/cancel-slot/:sessionId", authenticateToken, async (req, res) => {
-//     const { sessionId } = req.params;
-//     const userId = req.user.id; // Assuming the user ID is available in the token
-
-//     try {
-//         const slot = await Counselling.findOne({ where: { session_id: sessionId, student_id: userId } });
-//         if (!slot) {
-//             return res.status(404).json({ error: "Slot not found" });
-//         }
-
-//         // Check if a remark exists
-//         if (slot.remark) {
-//             return res.status(403).json({ error: "Cannot cancel a slot with a remark" });
-//         }
-
-//         // Check if the session time has passed
-//         const currentTime = new Date();
-//         // currentTime.setHours(currentTime.getHours() + 20);
-//         // currentTime.setMinutes(currentTime.getMinutes() + 0);
-
-//         console.log(currentTime);
-//         const sessionTime = new Date(slot.session_date_time);
-//         console.log(sessionTime);
-//         if (sessionTime < currentTime) {
-//             return res.status(403).json({ error: "Cannot cancel a slot that has already passed" });
-//         }
-
-
-
-//         // Delete all associated reports first
-//         await CounsellingReport.destroy({
-//             where: { counselling_id: sessionId }, // Use the correct column name
-//         });
-
-//         // Delete the slot
-//         await slot.destroy();
-
-//         res.json({ message: "Slot cancelled successfully" });
-//     } catch (error) {
-//         console.error("Error cancelling slot:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
-
-
-// router.get("/admin-booked-slots", authenticateToken, async (req, res) => {
-//     try {
-//         const slots = await CounsellingSession.findAll({
-//             include: [
-//                 { model: User, as: "Student" },
-//                 { model: User, as: "Counsellor" },
-//             ],
-//         });
-
-//         res.json(slots);
-//     } catch (error) {
-//         console.error("Error fetching admin booked slots:", error);
-//         res.status(500).json({ error: "Internal Server Error" });
-//     }
-// });
 
 router.get("/all-booked-slots", authenticateToken, async (req, res) => {
     try {

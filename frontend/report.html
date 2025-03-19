@@ -683,6 +683,35 @@
             // Redirect to the login page
             window.location.href = "auth.html";
         });
+
+        const userId = sessionStorage.getItem("id"); // Assuming you store the user ID in localStorage
+        console.log(userId);
+        if (userId) {
+            socket.emit("join", userId);
+        }
+
+        // Listen for new notifications
+        socket.on("newNotification", (notification) => {
+            showNotification(notification.title, notification.body);
+        });
+
+        // Function to show the notification as a pop-up
+        function showNotification(title, message) {
+            // Create a notification pop-up (if browser supports Notification API)
+            if (Notification.permission === "granted") {
+                new Notification(title, { body: message });
+            }
+            else {
+                // If Notification API is not supported or permission is denied, use an alert
+                alert(`${title}: ${message}`);
+            }
+        }
+
+        // Request permission for browser notifications
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
     </script>
 </body>
 
